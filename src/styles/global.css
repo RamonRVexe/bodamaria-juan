@@ -1,0 +1,285 @@
+/* ============================================================
+   DESIGN TOKENS
+   Paleta: verde bosque profundo (follaje / atardecer de las fotos
+   de referencia) + papel crema (sobre) + bronce apagado como acento.
+   Deliberadamente NO se usa terracota ni negro puro.
+   ============================================================ */
+   @font-face {
+  font-family: 'Runethia';
+  src: url('/fonts/Runethia.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Color */
+  --ink: #211f19;
+  --ink-soft: #4a4438;
+  --paper: #f7f2e7;
+  --paper-dim: #efe8d8;
+  --forest-deep: #2b3324;
+  --forest: #444f36;
+  --forest-soft: #6b7658;
+  --bronze: #a9895f;
+  --bronze-soft: #c9ac82;
+  --line: rgba(33, 31, 25, 0.14);
+  --overlay-dark: rgba(20, 22, 15, 0.55);
+  --overlay-dark-strong: rgba(15, 17, 11, 0.72);
+
+  /* Type */
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-script: 'Runethia', cursive;
+  --font-sans: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Scale */
+  --step-0: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.75rem, 1.5rem + 1.1vw, 2.4rem);
+  --step-3: clamp(2.4rem, 1.9rem + 2vw, 3.6rem);
+  --step-4: clamp(3.4rem, 2.4rem + 4vw, 5.6rem);
+
+  /* Layout */
+  --content-width: 640px;
+  --edge: clamp(1.25rem, 5vw, 2.5rem);
+  --radius: 2px;
+
+  /* Motion */
+  --ease-elegant: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-base: 900ms;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  position: relative;
+  margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  overflow-x: hidden;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: -14px;
+  content: '';
+  background: url('/images/hero.jpg') center top / cover no-repeat;
+  filter: blur(0);
+  transition: filter 500ms var(--ease-elegant);
+}
+
+body.has-scrolled::before {
+  filter: blur(7px);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Visible focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+.section {
+  position: relative;
+  padding-block: clamp(4rem, 10vw, 7rem);
+}
+
+.section__inner {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: var(--edge);
+}
+
+.section--wide .section__inner {
+  max-width: 980px;
+}
+
+.kicker {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  color: var(--bronze);
+  margin-bottom: 0.9rem;
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--step-3);
+  line-height: 1.08;
+  color: var(--forest-deep);
+}
+
+.divider {
+  width: 44px;
+  height: 1px;
+  background: var(--bronze);
+  margin: 1.75rem auto;
+  border: none;
+}
+
+.divider--left {
+  margin-inline: 0;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.95rem 2.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: transform 420ms var(--ease-elegant), background-color 420ms var(--ease-elegant), color 420ms var(--ease-elegant), border-color 420ms var(--ease-elegant);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--primary {
+  background: var(--forest-deep);
+  color: var(--paper);
+  border-color: var(--forest-deep);
+}
+
+.btn--primary:hover {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--forest-deep);
+  border-color: var(--forest-deep);
+}
+
+.btn--outline:hover {
+  background: var(--forest-deep);
+  color: var(--paper);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--paper);
+  border-color: rgba(247, 242, 231, 0.55);
+}
+
+.btn--ghost:hover {
+  background: rgba(247, 242, 231, 0.14);
+  border-color: var(--paper);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   SCROLL-REVEAL ANIMATION SYSTEM
+   Clases utilitarias activadas vía IntersectionObserver
+   (ver /src/scripts/reveal.ts). Ligero, sin librerías externas.
+   ============================================================ */
+[data-reveal] {
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  transition-property: opacity, transform, filter;
+  transition-duration: var(--dur-base);
+  transition-timing-function: var(--ease-elegant);
+}
+
+[data-reveal='fade-up'] { transform: translateY(28px); }
+[data-reveal='fade-down'] { transform: translateY(-24px); }
+[data-reveal='fade-in'] { transform: none; }
+[data-reveal='scale'] { transform: scale(0.94); }
+[data-reveal='blur'] {
+  filter: blur(10px);
+  transform: translateY(14px);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+/* Stagger helper: set --delay inline per-child */
+[data-reveal] {
+  transition-delay: var(--delay, 0ms);
+}

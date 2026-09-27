@@ -1,0 +1,181 @@
+---
+import { wedding } from '@/config/wedding';
+import Countdown from './Countdown.astro';
+---
+
+<section class="hero" aria-label="Portada de la invitación">
+  <div class="hero__content">
+    <h1 class="hero__save">
+      <span class="hero__save-line1">{wedding.hero.eyebrowLine1}</span>
+      <span class="hero__save-line2">{wedding.hero.eyebrowLine2}</span>
+    </h1>
+
+    <div class="hero__couple" aria-hidden="true">
+      <img src="/images/cheloYjuan.png" alt="" />
+    </div>
+
+    <div class="hero__bottom">
+      <p class="hero__names">{wedding.couple.displayNames}</p>
+      <p class="hero__date">{wedding.displayDate}</p>
+      <Countdown compact />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    color: var(--paper);
+    overflow: hidden;
+    
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    padding: max(1.5rem, env(safe-area-inset-top)) clamp(1rem, 5vw, 2.5rem)
+      max(1.5rem, env(safe-area-inset-bottom));
+    text-align: center;
+  }
+
+  .hero__save {
+    margin: 0.5rem 0 0;
+    line-height: 0.78;
+    animation: hero-rise 1s var(--ease-elegant) 120ms both;
+  }
+
+  .hero__save-line1,
+  .hero__save-line2 {
+    display: block;
+    font-family: var(--font-script);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.42);
+
+  }
+
+  .hero__save-line1 {
+    font-size: clamp(3.8rem, 18vw, 6.4rem);
+  }
+
+  .hero__save-line2 {
+    font-size: clamp(3rem, 14vw, 5rem);
+    margin-top: 0.12em;
+  }
+
+  .hero__bottom {
+    position: absolute;
+    right: 0;
+    bottom: clamp(1rem, 4vh, 2rem);
+    left: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .hero__names,
+  .hero__date,
+  .hero__bottom :global(.countdown) {
+    opacity: 0;
+    animation: hero-rise 1s var(--ease-elegant) both;
+  }
+
+  .hero__names {
+    animation-delay: 620ms;
+  }
+
+  .hero__date {
+    animation-delay: 760ms;
+  }
+
+  .hero__bottom :global(.countdown) {
+    animation-delay: 900ms;
+  }
+
+  .hero__couple {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: min(90vw, 36rem);
+    height: min(64vh, 40rem);
+    transform: translate(-50%, -50%);
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hero__couple img {
+    position: absolute;
+    left: 50%;
+    bottom: -26%;
+    width: 160%;
+    max-width: none;
+    transform: translateX(-50%);
+  }
+
+  .hero__couple {
+    animation: hero-image-in 1.4s var(--ease-elegant) 300ms both;
+  }
+
+  .hero__names {
+    font-family: var(--font-script);
+    font-size: clamp(2.3rem, 11vw, 3.7rem);
+    line-height: 1;
+    font-weight: 400;
+    text-shadow: 0 3px 18px rgba(0, 0, 0, 0.4);
+    margin-bottom: 0.15rem;
+  }
+
+  .hero__date {
+    font-family: var(--font-sans);
+    font-size: clamp(0.76rem, 2.5vw, 0.9rem);
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    margin-bottom: 0.9rem;
+  }
+
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem);
+      filter: blur(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes hero-image-in {
+    from {
+      opacity: 0;
+      filter: blur(10px);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__save,
+    .hero__couple,
+    .hero__names,
+    .hero__date,
+    .hero__bottom :global(.countdown) {
+      animation: none;
+      opacity: 1;
+      filter: none;
+    }
+  }
+</style>

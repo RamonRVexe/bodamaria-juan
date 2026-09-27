@@ -1,0 +1,286 @@
+---
+import { wedding } from '@/config/wedding';
+const { rsvp } = wedding;
+---
+
+<div class="rsvp-card">
+  <h2 class="rsvp-card__title">{rsvp.title}</h2>
+
+  <form
+    class="rsvp-card__form"
+    data-rsvp-form
+    data-script-url={rsvp.googleScriptUrl}
+    data-success-msg={rsvp.successMessage}
+    data-error-msg={rsvp.errorMessage}
+  >
+    <div class="field">
+      <label for="nombre">{rsvp.nameLabel}</label>
+      <input id="nombre" name="nombre" type="text" required autocomplete="name" />
+    </div>
+
+    <fieldset class="field">
+      <legend>{rsvp.attendanceQuestion}</legend>
+      <div class="choice-group">
+        {rsvp.attendanceOptions.map((option) => (
+          <label class="choice">
+            <input type="radio" name="asistencia" value={option} required />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>{rsvp.companionQuestion}</legend>
+      <div class="choice-group">
+        {rsvp.companionOptions.map((option) => (
+          <label class="choice">
+            <input type="radio" name="acompanante" value={option} />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <button class="submit-btn" type="submit" data-rsvp-submit>
+      <span data-rsvp-submit-label>{rsvp.submitLabel}</span>
+    </button>
+
+    <p class="rsvp-card__status" data-rsvp-status role="status" aria-live="polite"></p>
+  </form>
+</div>
+
+<script>
+  interface RSVPPayload {
+    nombre: string;
+    asistencia: string;
+    acompanante: string;
+    fechaRegistro: string;
+  }
+
+  const forms = document.querySelectorAll<HTMLFormElement>('[data-rsvp-form]');
+
+  forms.forEach((form) => {
+    const scriptUrl = form.dataset.scriptUrl;
+    const statusEl = form.querySelector<HTMLElement>('[data-rsvp-status]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-rsvp-submit]');
+    const submitLabel = form.querySelector<HTMLElement>('[data-rsvp-submit-label]');
+
+    let isSubmitting = false;
+
+    function setStatus(state: 'sending' | 'success' | 'error', message: string) {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.dataset.state = state;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+
+      const successMsg = form.dataset.successMsg ?? 'Gracias por confirmar.';
+      const errorMsg = form.dataset.errorMsg ?? 'Ocurrió un error, intenta de nuevo.';
+
+      if (!scriptUrl || scriptUrl.includes('PEGA_AQUI')) {
+        setStatus('error', 'Formulario no conectado. Configura GOOGLE_SCRIPT_URL en src/config/wedding.ts.');
+        return;
+      }
+
+      const formData = new FormData(form);
+      const payload: RSVPPayload = {
+        nombre: String(formData.get('nombre') ?? ''),
+        asistencia: String(formData.get('asistencia') ?? ''),
+        acompanante: String(formData.get('acompanante') ?? ''),
+        fechaRegistro: new Date().toISOString(),
+      };
+
+      isSubmitting = true;
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitLabel) submitLabel.textContent = 'Enviando...';
+      setStatus('sending', 'Enviando tu confirmación...');
+
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+        });
+
+        setStatus('success', successMsg);
+        form.reset();
+      } catch (err) {
+        setStatus('error', errorMsg);
+      } finally {
+        isSubmitting = false;
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitLabel) submitLabel.textContent = form.dataset.submitLabel ?? 'Enviar';
+      }
+    });
+  });
+</script>
+
+<style>
+  .rsvp-card {
+    position: relative;
+    overflow: hidden;
+    width: min(440px, calc(100vw - 2rem));
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.94);
+    padding: clamp(1.5rem, 5vw, 2.5rem);
+    border: 1px solid rgba(33, 31, 25, 0.08);
+    box-shadow: 0 24px 55px -24px rgba(20, 20, 12, 0.45);
+    border-radius: 8px;
+  }
+
+  .rsvp-card::before {
+    position: absolute;
+    top: 0;
+    right: 2rem;
+    left: 2rem;
+    height: 3px;
+    content: '';
+    background: var(--bronze);
+    opacity: 0.8;
+  }
+
+  .rsvp-card__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.65rem, 5vw, 2.1rem);
+    color: #1c1b17;
+    line-height: 1.1;
+    margin-bottom: 1.8rem;
+    letter-spacing: 0.01em;
+  }
+
+  .rsvp-card__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .field {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .field label,
+  .field legend {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--forest-deep);
+    letter-spacing: 0.12em;
+    padding: 0;
+    text-transform: uppercase;
+  }
+
+  .field input[type='text'] {
+    background: #ffffff;
+    border: 1px solid #d8d3c6;
+    border-radius: 5px;
+    min-height: 3rem;
+    padding: 0.75rem 0.9rem;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: #1c1b17;
+    transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  }
+
+  .field input[type='text']:focus {
+    border-color: var(--bronze);
+    background: #fffdf9;
+    box-shadow: 0 0 0 3px rgba(169, 137, 95, 0.14);
+    outline: none;
+  }
+
+  .choice-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .choice {
+    display: block;
+    min-height: 3rem;
+    padding: 0.7rem 0.8rem;
+    background: rgba(239, 232, 216, 0.58);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: #26251f;
+    cursor: pointer;
+    transition: background-color 220ms ease, border-color 220ms ease, transform 220ms ease;
+    position: relative;
+  }
+
+  .choice:hover {
+    border-color: rgba(169, 137, 95, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .choice:has(input:checked) {
+    background: var(--forest);
+    border-color: var(--forest-deep);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(43, 51, 36, 0.18);
+  }
+
+  .submit-btn {
+    margin-top: 0.4rem;
+    width: 100%;
+    min-height: 3.1rem;
+    padding: 0.85rem 1rem;
+    border: none;
+    border-radius: 999px;
+    background: var(--forest);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 10px 20px rgba(43, 51, 36, 0.2);
+    transition: background-color 250ms ease, box-shadow 250ms ease, transform 150ms ease;
+  }
+
+  .submit-btn:hover {
+    background: var(--forest-deep);
+    box-shadow: 0 12px 24px rgba(43, 51, 36, 0.28);
+  }
+
+  .submit-btn:active {
+    transform: scale(0.98);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.7;
+  }
+
+  .rsvp-card__status {
+    min-height: 1.2em;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 0;
+    line-height: 1.35;
+  }
+
+  .rsvp-card__status[data-state='sending'] { color: #6b6a63; }
+  .rsvp-card__status[data-state='success'] { color: #4c5a34; }
+  .rsvp-card__status[data-state='error'] { color: #a8562f; }
+
+  @media (max-width: 400px) {
+    .choice-group {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

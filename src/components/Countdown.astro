@@ -1,0 +1,147 @@
+---
+import { wedding } from '@/config/wedding';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+---
+
+<div class:list={['countdown', { 'countdown--compact': compact }]} data-countdown={wedding.date}>
+  <p class="countdown__label">{wedding.countdown.label}</p>
+  <div class="countdown__grid" data-countdown-grid>
+    <div class="countdown__unit">
+      <span class="countdown__value" data-unit="days">00</span>
+      <span class="countdown__unit-label">{wedding.countdown.units.days}</span>
+    </div>
+    <span class="countdown__sep" aria-hidden="true">:</span>
+    <div class="countdown__unit">
+      <span class="countdown__value" data-unit="hours">00</span>
+      <span class="countdown__unit-label">{wedding.countdown.units.hours}</span>
+    </div>
+    <span class="countdown__sep" aria-hidden="true">:</span>
+    <div class="countdown__unit">
+      <span class="countdown__value" data-unit="minutes">00</span>
+      <span class="countdown__unit-label">{wedding.countdown.units.minutes}</span>
+    </div>
+    <span class="countdown__sep" aria-hidden="true">:</span>
+    <div class="countdown__unit">
+      <span class="countdown__value" data-unit="seconds">00</span>
+      <span class="countdown__unit-label">{wedding.countdown.units.seconds}</span>
+    </div>
+  </div>
+  <p class="countdown__complete" data-countdown-complete hidden>{wedding.countdown.completeMessage}</p>
+</div>
+
+<script>
+  function pad(n: number): string {
+    return n.toString().padStart(2, '0');
+  }
+
+  function setupCountdown(el: HTMLElement) {
+    const targetDate = el.dataset.countdown;
+    if (!targetDate) return;
+    const target = new Date(targetDate).getTime();
+
+    const grid = el.querySelector<HTMLElement>('[data-countdown-grid]');
+    const completeEl = el.querySelector<HTMLElement>('[data-countdown-complete]');
+    const days = el.querySelector<HTMLElement>('[data-unit="days"]');
+    const hours = el.querySelector<HTMLElement>('[data-unit="hours"]');
+    const minutes = el.querySelector<HTMLElement>('[data-unit="minutes"]');
+    const seconds = el.querySelector<HTMLElement>('[data-unit="seconds"]');
+
+    function tick() {
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        if (grid) grid.hidden = true;
+        if (completeEl) completeEl.hidden = false;
+        clearInterval(timer);
+        return;
+      }
+
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      if (days) days.textContent = pad(d);
+      if (hours) hours.textContent = pad(h);
+      if (minutes) minutes.textContent = pad(m);
+      if (seconds) seconds.textContent = pad(s);
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-countdown]').forEach(setupCountdown);
+</script>
+
+<style>
+  .countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .countdown__label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    opacity: 0.9;
+    text-transform: uppercase;
+  }
+
+  .countdown__grid {
+    display: grid;
+    grid-template-columns: repeat(7, auto);
+    align-items: start;
+    gap: 0.35rem;
+  }
+
+  .countdown__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 2.6rem;
+  }
+
+  .countdown__value {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 6vw, 2.1rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    font-weight: 500;
+  }
+
+  .countdown__unit-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+    margin-top: 0.3rem;
+    text-transform: uppercase;
+  }
+
+  .countdown__sep {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 5vw, 1.7rem);
+    opacity: 0.6;
+    padding-top: 0.1rem;
+  }
+
+  .countdown__complete {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+  }
+
+  /* En contexto no-hero (fondo claro) hereda el color de texto normal */
+  :global(.section) .countdown__value,
+  :global(.section) .countdown__label,
+  :global(.section) .countdown__unit-label {
+    color: var(--forest-deep);
+  }
+</style>
