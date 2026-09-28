@@ -20,8 +20,8 @@ export const wedding = {
   displayDate: '21 NOVIEMBRE 2026',
 
   hero: {
-    eyebrowLine1: 'SAVE',
-    eyebrowLine2: 'THE DATE',
+    eyebrowLine1: 'Save',
+    eyebrowLine2: 'The Date',
     image: {
       src: '/images/hero.jpg',
       alt: 'María y Juan tomados de la mano al atardecer',
